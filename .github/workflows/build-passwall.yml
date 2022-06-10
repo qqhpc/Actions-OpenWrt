@@ -53,13 +53,7 @@ jobs:
         pushd feeds/packages/lang && rm -rf golang && svn co https://github.com/openwrt/packages/branches/openwrt-21.02/lang/golang && popd
         echo "pwd"
         pwd
-        ./scripts/feeds install luci-app-passwall
-
-    - name: Creat local build key
-      run: |    
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
-        ./staging_dir/host/bin/usign -G -s ./key-build -p ./key-build.pub -c "Local build key"
-        echo "Local build key完毕"
+        ./scripts/feeds install -a
 
     - name: Chrose software
       run: |
@@ -67,7 +61,8 @@ jobs:
         make defconfig
 
     - name: Add config file
-      run: |        
+      run: |    
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
         rm -rf .config
         wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/passwall/.config
         echo "配置抓取完毕"
@@ -103,6 +98,7 @@ jobs:
         
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
+        
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -117,6 +113,7 @@ jobs:
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
         echo "::set-output name=status::success"
+        
     - name: Upload firmware to release
       uses: softprops/action-gh-release@v1
       if: steps.tag.outputs.status == 'success' && !cancelled()
