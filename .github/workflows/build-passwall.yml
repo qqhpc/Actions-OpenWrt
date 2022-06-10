@@ -44,7 +44,9 @@ jobs:
         
     - name: Upate and install feed and update go
       run: |
-        echo "更新、安装feed和go"    
+        echo "更新、安装feed和go"
+        pwd
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
         ./scripts/feeds update -a
         pushd feeds/packages/lang && rm -rf golang && svn co https://github.com/openwrt/packages/branches/openwrt-21.02/lang/golang && popd
         echo "pwd"
