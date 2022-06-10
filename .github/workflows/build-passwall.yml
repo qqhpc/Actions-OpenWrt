@@ -12,6 +12,7 @@ on:
 env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
+  UPLOAD_BIN_DIR: true
   TZ: Asia/Shanghai
 
 jobs:
@@ -60,8 +61,10 @@ jobs:
         echo "配置抓取完毕"
         
     - name: Download dll
-      run: |        
-        make -j8 download V=s
+      run: | 
+        pwd
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
+        make -j2 download V=s
         echo "下载完毕"
 
     - name: Creat local build key
@@ -87,7 +90,7 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: sdk/bin
+        path: /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/bin
 
     - name: Organize files
       id: organize
