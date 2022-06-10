@@ -53,10 +53,6 @@ jobs:
         pwd
         ./scripts/feeds install luci-app-passwall
 
-    - name: Install upx
-      run: |
-        wget https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz && tar -Jxf upx-3.96-amd64_linux.tar.xz && cp ./upx-3.96-amd64_linux/upx staging_dir/host/bin/ && chmod +x staging_dir/host/bin/upx
-
     - name: Add config file
       run: |        
         rm -rf .config
