@@ -27,11 +27,10 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         echo "下载依赖软件"
-        sudo apt update -y &> /dev/null
-#        sudo apt full-upgrade -y &> /dev/null
-        sudo apt install aptitude -y &> /dev/null
+        sudo apt update -y
+        sudo apt full-upgrade -y &> /dev/null
+        sudo apt install aptitude -y
         sudo aptitude install build-essential asciidoc ack antlr3 autoconf automake autopoint binutils bison bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev -y &> /dev/null
-#       install upx 
         wget https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz && tar -Jxf upx-3.96-amd64_linux.tar.xz && cp ./upx-3.96-amd64_linux/upx staging_dir/host/bin/ && chmod +x staging_dir/host/bin/upx
                 
     - name: get openwrt x86 sdk
@@ -48,7 +47,6 @@ jobs:
       run: |
         echo "更新、安装feed和go"    
         ./scripts/feeds update -a
-#        更换新版本的go
         pushd feeds/packages/lang && rm -rf golang && svn co https://github.com/openwrt/packages/branches/openwrt-21.02/lang/golang && popd
         echo "pwd"
         pwd
