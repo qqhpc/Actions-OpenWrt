@@ -36,10 +36,6 @@ jobs:
       run: |
         echo "下载解压sdk"
         wget https://downloads.openwrt.org/releases/21.02.3/targets/x86/64/openwrt-sdk-21.02.3-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar.xz && xz -d openwrt-sdk-21.02.3-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar.xz && tar -xvf openwrt-sdk-21.02.3-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar && mv openwrt-sdk-21.02.3-x86-64_gcc-8.4.0_musl.Linux-x86_64 sdk && rm -rf openwrt-sdk-21.02.3-x86-64_gcc-8.4.0_musl.Linux-x86_64.tar && cd sdk
-
-    - name: Install upx
-      run: |
-        wget https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz && tar -Jxf upx-3.96-amd64_linux.tar.xz && cp ./upx-3.96-amd64_linux/upx staging_dir/host/bin/ && chmod +x staging_dir/host/bin/upx
         
     - name: Add package
       run: |
@@ -54,7 +50,11 @@ jobs:
         echo "pwd"
         pwd
         ./scripts/feeds install luci-app-passwall
-        
+
+    - name: Install upx
+      run: |
+        wget https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz && tar -Jxf upx-3.96-amd64_linux.tar.xz && cp ./upx-3.96-amd64_linux/upx staging_dir/host/bin/ && chmod +x staging_dir/host/bin/upx
+
     - name: Add config file
       run: |        
         rm -rf .config
