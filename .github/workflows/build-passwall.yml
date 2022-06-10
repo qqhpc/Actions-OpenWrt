@@ -1,4 +1,4 @@
-name: Build SSR
+name: Build passwall
 
 on:
   repository_dispatch:
