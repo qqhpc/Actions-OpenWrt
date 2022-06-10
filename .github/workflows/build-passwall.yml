@@ -14,6 +14,7 @@ env:
   UPLOAD_RELEASE: true
   UPLOAD_BIN_DIR: true
   TZ: Asia/Shanghai
+  TERM: xterm-256color
 
 jobs:
   build:
