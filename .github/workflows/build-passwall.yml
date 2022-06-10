@@ -55,18 +55,22 @@ jobs:
         pwd
         ./scripts/feeds install luci-app-passwall
 
-    - name: Add config file
-      run: |        
-        rm -rf .config
-        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/passwall/.config
-        echo "配置抓取完毕"
-        
-
     - name: Creat local build key
       run: |    
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
         ./staging_dir/host/bin/usign -G -s ./key-build -p ./key-build.pub -c "Local build key"
         echo "Local build key完毕"
+
+    - name: Chrose software
+      run: |
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
+        make defconfig
+
+    - name: Add config file
+      run: |        
+        rm -rf .config
+        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/passwall/.config
+        echo "配置抓取完毕"
         
     - name: Compiling software
       run: |
