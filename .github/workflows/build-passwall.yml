@@ -65,9 +65,8 @@ jobs:
       run: |
         echo "开始下载dl"
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
-        make download -j2 V=s
-        find dl -size -1024c -exec rm -f {} ;
-        make download -j2 V=s        
+        make download -j2 V=s 
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
         echo "开始编译"
         make -j2 V=s
         echo "::set-output name=status::success"
