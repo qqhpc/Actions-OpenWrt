@@ -18,7 +18,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
 
     steps:
     - name: Checkout
@@ -40,14 +40,22 @@ jobs:
         
     - name: Add package
       run: |
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/package
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
         echo "添加ssr-plus"
-        git clone https://github.com/fw876/helloworld.git
+        git clone https://github.com/fw876/helloworld.git ./package/ssr-plus
+        echo "添加passwall"
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        git clone https://github.com/xiaorouji/openwrt-passwall.git -b packages ./package/passwall_package
+        git clone https://github.com/xiaorouji/openwrt-passwall.git -b luci ./package/passwall
+        cp -rf ./package/passwall_package/* ./package/passwall
+        rm -rf ./package/passwall_package
+        echo "添加passwall2"
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        git clone https://github.com/xiaorouji/openwrt-passwall2.git ./package/passwall2 
         
-    - name: Upate and install feed and update go
+    - name: Upate and install feed
       run: |
-        echo "更新、安装feed和go"
-        pwd
+        echo "更新、安装feed"
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
         ./scripts/feeds update -a
         ./scripts/feeds install -a
@@ -56,17 +64,17 @@ jobs:
       run: |    
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
         rm -rf .config
-        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/ssr-plus/.config
+        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/config/.config
         echo "配置抓取完毕"
         
     - name: Compiling software
       run: |
         echo "开始下载dl"
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
-        make download -j2 V=s 
+        make download -j8
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
         echo "开始编译"
-        make -j2 V=s
+        make V=s -j1
         echo "::set-output name=status::success"
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
@@ -81,7 +89,7 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/bin
+        path: /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/bin
 
     - name: Organize files
       id: organize
@@ -89,7 +97,7 @@ jobs:
       run: |
         echo "pwd"
         pwd
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/bin/
+        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/bin/
         
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
