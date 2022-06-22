@@ -59,6 +59,8 @@ jobs:
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
         ./scripts/feeds update -a
         ./scripts/feeds install -a
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
 
     - name: Add config file
       run: |    
