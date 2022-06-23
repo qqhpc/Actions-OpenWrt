@@ -1,4 +1,4 @@
-name: Build packages
+name: Build x86 packages
 
 on:
   repository_dispatch:
@@ -39,7 +39,7 @@ jobs:
         echo "开始下载依赖软件"
         sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
         sudo -E apt-get -qq update
-        sudo -E apt-get -qq install $(curl -fsSL https://raw.githubusercontent.com/qqhpc/Actions-OpenWrt-X86/main/depends-ubuntu-2004)
+        sudo -E apt-get -qq install $(curl -fsSL https://raw.githubusercontent.com/qqhpc/Actions-OpenWrt/main/depends-ubuntu-2004)
         sudo -E apt-get -qq autoremove --purge
         sudo -E apt-get -qq clean
         sudo -E apt-get full-upgrade -y
@@ -62,10 +62,16 @@ jobs:
     - name: Add packages
       run: |
         echo "开始添加第三方软件"
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
         cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH 
+        echo "add passwall"
+        git clone https://github.com/xiaorouji/openwrt-passwall.git -b packages ./package/passwall_package
+        git clone https://github.com/xiaorouji/openwrt-passwall.git -b luci ./package/passwall
+        cp -rf ./package/passwall_package/* ./package/passwall
+        rm -rf ./package/passwall_package
+        echo "passwall2"
+        git clone https://github.com/xiaorouji/openwrt-passwall2.git ./package/passwall2
+        echo "ssr-plus"
+        git clone --depth=1 https://github.com/fw876/helloworld.git ./package/helloworld
         echo "第三方软件添加完毕"
         
     - name: Upate and install feed
@@ -81,16 +87,10 @@ jobs:
         echo "开始添加配置文件"
         cd openwrt
         rm -rf .config
-        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/config/.config
+        wget https://github.com/qqhpc/Actions-OpenWrt/raw/main/config/x86.config
+        mv x86.config .config
         echo "配置抓取完毕"
 
-    - name: Load custom configuration
-      run: |
-        echo "自定义配置"
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
-        echo "自定义配置修改完成"
         
     - name: Download package
       id: package
