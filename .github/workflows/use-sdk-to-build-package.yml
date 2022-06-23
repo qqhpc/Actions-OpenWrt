@@ -1,4 +1,4 @@
-name: Build passwall
+name: use-sdk-to-build-package
 
 on:
   repository_dispatch:
