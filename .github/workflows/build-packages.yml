@@ -65,8 +65,6 @@ jobs:
         cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-        ./scripts/feeds update -a
-        ./scripts/feeds install -a
 
     - name: Add config file
       run: |    
@@ -74,9 +72,6 @@ jobs:
         rm -rf .config
         wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/config/.config
         echo "配置抓取完毕"
-        chmod +x $DIY_P2_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P2_SH
         
     - name: Download package
       id: package
