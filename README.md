@@ -2,4 +2,4 @@
 自动编译X86版插件
 
 
-内容来自 [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt) 
+模板来自 [P3TERX/Actions-OpenWrt](https://github.com/P3TERX/Actions-OpenWrt) 
