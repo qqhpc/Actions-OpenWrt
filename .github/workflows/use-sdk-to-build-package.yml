@@ -61,7 +61,7 @@ jobs:
       run: |    
         cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/sdk/
         rm -rf .config
-        wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/passwall/.config
+        make defconfig
         echo "配置抓取完毕"
         
     - name: Compiling software
