@@ -10,11 +10,20 @@ on:
         default: 'false'
 
 env:
-  UPLOAD_FIRMWARE: true
-  UPLOAD_RELEASE: true
-  UPLOAD_BIN_DIR: true
-  TZ: Asia/Shanghai
   TERM: xterm-256color
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: main
+  FEEDS_CONF: feeds.conf.default
+  CONFIG_FILE: .config
+  DIY_P1_SH: diy-part1.sh
+  DIY_P2_SH: diy-part2.sh
+  UPLOAD_BIN_DIR: true
+  UPLOAD_FIRMWARE: true
+  UPLOAD_COWTRANSFER: false
+  UPLOAD_WETRANSFER: false
+  UPLOAD_RELEASE: true
+  TZ: Asia/Shanghai
+  
 
 jobs:
   build:
@@ -29,34 +38,34 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         echo "下载依赖软件"
-        sudo apt update -y
-        sudo apt install aptitude -y
-        sudo aptitude install build-essential asciidoc ack antlr3 autoconf automake autopoint binutils bison bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev -y &> /dev/null        
-                
-    - name: Get code
+        sudo -E apt -qq update -y
+        sudo -E apt -qq install aptitude -y
+        sudo -E aptitude -qq install build-essential asciidoc ack antlr3 autoconf automake autopoint binutils bison bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev -y &> /dev/null        
+        sudo -E apt -qq autoremove --purge
+        sudo -E apt -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+        
+    - name: Clone source code
+      working-directory: /workdir
       run: |
+        df -hT $PWD
         echo "下载lean的源码"
-        git clone https://github.com/coolsnowwolf/lede.git && cd lede
+        git clone $REPO_URL openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt     
         
     - name: Add package
       run: |
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
-        echo "添加ssr-plus"
-        git clone https://github.com/fw876/helloworld.git ./package/ssr-plus
-        echo "添加passwall"
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
-        git clone https://github.com/xiaorouji/openwrt-passwall.git -b packages ./package/passwall_package
-        git clone https://github.com/xiaorouji/openwrt-passwall.git -b luci ./package/passwall
-        cp -rf ./package/passwall_package/* ./package/passwall
-        rm -rf ./package/passwall_package
-        echo "添加passwall2"
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
-        git clone https://github.com/xiaorouji/openwrt-passwall2.git ./package/passwall2 
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH   
         
     - name: Upate and install feed
       run: |
         echo "更新、安装feed"
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        cd openwrt
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         ./scripts/feeds update -a
@@ -64,19 +73,31 @@ jobs:
 
     - name: Add config file
       run: |    
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        cd openwrt
         rm -rf .config
         wget https://github.com/qqhpc/Actions-OpenWrt-X86/raw/main/config/.config
         echo "配置抓取完毕"
+        chmod +x $DIY_P2_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P2_SH
         
-    - name: Compiling software
+    - name: Download package
+      id: package
       run: |
         echo "开始下载dl"
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        cd openwrt
         make download -j8
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+        make download -j8
+        
+    - name: Compile the firmware
+      id: compile
+      run: | 
         echo "开始编译"
-        make V=s -j1
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
         echo "::set-output name=status::success"
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
@@ -91,19 +112,17 @@ jobs:
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       with:
         name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/bin
+        path: openwrt/bin
 
     - name: Organize files
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
-        echo "pwd"
-        pwd
-        cd /home/runner/work/Actions-OpenWrt-X86/Actions-OpenWrt-X86/lede/bin/
-        
+        cd openwrt/bin/targets/*/*
+        rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "::set-output name=status::success"
-        
+                
     - name: Upload firmware directory
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
@@ -117,6 +136,8 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
+        [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
+        [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
         echo "::set-output name=status::success"
         
     - name: Upload firmware to release
