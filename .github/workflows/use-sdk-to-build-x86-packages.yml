@@ -1,4 +1,4 @@
-name: use-sdk-to-build-package
+name: Use SDK to build x86 packages
 
 on:
   repository_dispatch:
