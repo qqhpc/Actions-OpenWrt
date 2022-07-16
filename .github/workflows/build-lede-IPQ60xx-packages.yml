@@ -1,4 +1,4 @@
-name: Build IPQ6xx packages
+name: Build lede IPQ6xx packages
 
 on:
   repository_dispatch:
