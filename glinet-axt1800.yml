@@ -17,6 +17,10 @@ feeds:
     uri: https://github.com/immortalwrt/luci.git
     branch: openwrt-21.02
     revision: ddf45cf3b5a82868cec10fcc2cddbbb1958340ef
+  - name: small
+    uri: https://github.com/kenzok8/small.git
+    branch: master
+    revision: 57ea69958b1d98029a6a3898a64a7c34a5a5e5cb
   - name: passwall
     uri: https://github.com/xiaorouji/openwrt-passwall.git
     revision: dc1c000d4c6ea0224042c9dff5b4ab066d425521
