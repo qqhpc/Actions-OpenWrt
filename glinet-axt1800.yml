@@ -47,13 +47,15 @@ packages:
   - luci-app-turboacc
   - luci-app-ramfree
   - luci-app-sqm
-  - luci-app-samba4
   - luci-app-passwall
   - luci-app-ssr-plus
   - luci-app-wireguard
   - wireguard
   - wireguard-tools
   - luci-app-commands
+  - luci-app-advanced-reboot
+  - luci-app-autoreboot
+  - luci-app-openclash  
 diffconfig: |
   CONFIG_PACKAGE_wpad-basic=n
   CONFIG_PACKAGE_wpad=n
