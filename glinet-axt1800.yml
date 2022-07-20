@@ -36,6 +36,7 @@ include:
 packages:
   - kmod-hwmon-pwmfan
   - wget-ssl
+  - dnsmasq-full
   - luci-app-advancedsetting
   - luci-app-diskman
   - luci-app-smartdns
@@ -48,5 +49,15 @@ packages:
   - luci-app-samba4
   - luci-app-passwall
   - luci-app-ssr-plus
+  - luci-app-wireguard
+  - wireguard
+  - wireguard-tools
+  - luci-app-commands
 diffconfig: |
+  CONFIG_PACKAGE_wpad-basic=n
+  CONFIG_PACKAGE_wpad=n
+  CONFIG_PACKAGE_dnsmasq=n
+  CONFIG_LUCI_LANG_zh_Hans=y
+  CONFIG_BUSYBOX_CUSTOM=y
+  CONFIG_BUSYBOX_CONFIG_FEATURE_FLOAT_SLEEP=y
   CONFIG_KERNEL_IPQ_MEM_PROFILE=0
