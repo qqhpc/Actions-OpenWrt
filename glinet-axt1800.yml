@@ -20,17 +20,18 @@ feeds:
   - name: small
     uri: https://github.com/kenzok8/small.git
     branch: master
-    revision: 57ea69958b1d98029a6a3898a64a7c34a5a5e5cb
+    revision: ba0e907af63c5f7dff8a0a513076915a15b75b5f
   - name: smallpackages
     uri: https://github.com/kenzok8/openwrt-packages.git
     branch: master
-    revision: b202c59937862a64c0256394fb13162d16abe074
+    revision: 3493a87e1c2cbdf5f5e2b952e3aa0a11e4166fc4
   - name: passwall
     uri: https://github.com/xiaorouji/openwrt-passwall.git
-    revision: dc1c000d4c6ea0224042c9dff5b4ab066d425521
+    revision: 9f2dc245cd45173629b56d6363df4c5b3dcf3bb9
   - name: helloworld
     uri: https://github.com/fw876/helloworld.git
     branch: master
+    revision: 1c09660c107fff350a51af5a56abdebfcd9a1cac
 include:
   - wifi-ax
 packages:
